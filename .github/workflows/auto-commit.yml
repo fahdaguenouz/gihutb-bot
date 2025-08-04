@@ -1,0 +1,26 @@
+# .github/workflows/auto-commit.yml
+name: Auto Commit Every Hour
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour (UTC time)
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Make random change
+        run: |
+          echo "Commit made at $(date)" >> hourly_log.txt
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto commit at $(date)" || echo "Nothing to commit"
+          git push
