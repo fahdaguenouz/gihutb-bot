@@ -1,9 +1,9 @@
-# .github/workflows/auto-commit.yml
-name: Auto Commit Every Hour
+name: Auto Commit Daily Random
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour (UTC time)
+    - cron: '0 0 * * *'  # Runs once per day at midnight (UTC)
+  workflow_dispatch:     # Allow manual run
 
 jobs:
   auto-commit:
@@ -13,14 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Make random change
+      - name: Make random commits
         run: |
-          echo "Commit made at $(date)" >> hourly_log.txt
+          # Pick a random number between 20 and 40 commits
+          COMMITS=$(( ( RANDOM % 21 ) + 20 ))
+          echo "Will make $COMMITS commits today."
 
-      - name: Commit and push
+          for i in $(seq 1 $COMMITS); do
+            echo "Commit $i made at $(date)" >> daily_log.txt
+            git add .
+            git commit -m "Random commit $i at $(date)" || echo "Nothing to commit"
+          done
+
+      - name: Push changes
         run: |
           git config user.name "fahdaguenouz"
           git config user.email "faguenouz@gmail.com"
-          git add .
-          git commit -m "Auto commit at $(date)" || echo "Nothing to commit"
           git push
