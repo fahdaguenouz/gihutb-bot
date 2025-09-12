@@ -2,8 +2,8 @@ name: Auto Commit Daily Random
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs once per day at midnight (UTC)
-  workflow_dispatch:     # Allow manual run
+    - cron: '0 23 * * *'  # Runs daily at 23:00 UTC (midnight Morocco time)
+  workflow_dispatch:
 
 jobs:
   auto-commit:
@@ -15,18 +15,16 @@ jobs:
 
       - name: Make random commits
         run: |
-          # Pick a random number between 20 and 40 commits
           COMMITS=$(( ( RANDOM % 21 ) + 20 ))
           echo "Will make $COMMITS commits today."
 
           for i in $(seq 1 $COMMITS); do
             echo "Commit $i made at $(date)" >> daily_log.txt
-            git add .
+            git add daily_log.txt
             git commit -m "Random commit $i at $(date)" || echo "Nothing to commit"
           done
 
       - name: Push changes
-        run: |
-          git config user.name "fahdaguenouz"
-          git config user.email "faguenouz@gmail.com"
-          git push
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
